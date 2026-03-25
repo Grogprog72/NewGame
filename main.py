@@ -16,18 +16,17 @@ def player_turn() -> str:
     return player_move
 
 def move_result(player_move: str, bot_move: str) -> None:
-    print(player_move)
-    if player_move == "К":
+    if player_move.upper() == "К":
         enter = possible_move[0]
-    elif player_move == "Н":
+    elif player_move.upper() == "Н":
         enter = possible_move[1]
-    elif player_move == "З":
+    elif player_move.upper() == "З":
         exit()
     else:
         enter = possible_move[2]
-    print(enter ,bot_move)
+    print(f"Your move: {enter}\n Bot move: {bot_move}")
     game_score['total_move'] += 1
-    if possible_move.index(enter) + 1 < possible_move.index(bot_move):
+    if (possible_move.index(enter) - 1 == possible_move.index(bot_move)) or (possible_move.index(enter) == 0 and possible_move.index(bot_move) == 2):
         game_score['bot_score'] += 1
         print('bot win')
     elif possible_move.index(enter) == possible_move.index(bot_move):
