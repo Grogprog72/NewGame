@@ -16,14 +16,13 @@ def player_turn() -> str:
     return player_move
 
 def move_result(player_move: str, bot_move: str) -> None:
-    if player_move.upper() == "К":
+    if player_move == "stone":
         enter = possible_move[0]
-    elif player_move.upper() == "Н":
+    elif player_move == "scissors":
         enter = possible_move[1]
-    elif player_move.upper() == "З":
-        exit()
-    else:
+    elif player_move == "paper":
         enter = possible_move[2]
+
     print(f"Your move: {enter}\n Bot move: {bot_move}")
     game_score['total_move'] += 1
     if (possible_move.index(enter) - 1 == possible_move.index(bot_move)) or (possible_move.index(enter) == 0 and possible_move.index(bot_move) == 2):
@@ -31,17 +30,21 @@ def move_result(player_move: str, bot_move: str) -> None:
         print('bot win')
     elif possible_move.index(enter) == possible_move.index(bot_move):
         print('nothing win')
+    elif player_move.upper() == "З":
+        exit()
     else:
         game_score['player_score'] += 1
         print('player win')
 
 
 def main_game() -> None:
-    pass
-
-print('Если хотите завершить игру и увидеть счёт, введите З')
-vvod = input()
-while vvod != 'З':
-    move_result(vvod, bot_turn(possible_move))
+    print('Если хотите завершить игру и увидеть счёт, введите З')
     vvod = input()
-print(f"Всего игр было сыграно {game_score['total_move']}.\nочки игрока равны {game_score['player_score']}.\nочки бота равны {game_score['bot_score']}.")
+    while vvod != 'З':
+        move_result(vvod, bot_turn(possible_move))
+        vvod = input()
+
+
+if __name__ == '__main__':
+    main_game()
+    print(f"Всего игр было сыграно {game_score['total_move']}.\nочки игрока равны {game_score['player_score']}.\nочки бота равны {game_score['bot_score']}.")
