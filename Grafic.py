@@ -85,28 +85,30 @@ def label_none_hide(list_obj_labels, root):
 def attack(item):
     current_x = item.winfo_x()
     current_y = item.winfo_y()
+    step_y = (current_y - 200) / 21
+    step_x = (current_x - 300) / 21
     def step():
         nonlocal current_x, current_y
-        step_y = (current_y - 200) / 7
-        step_x = (current_x - 300) / 7
+        #step_y = (current_y - 200) / 7
+        #step_x = (current_x - 300) / 7
         if str(item) == '.!label3':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_x > 300 and current_y > 200:
-                item.after(100, step)
+                item.after(20, step)
         elif str(item) == '.!label2':
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_y > 200:
-                item.after(10, step)
+                item.after(20, step)
         elif str(item) == '.!label':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_x < 300 and current_y < 400:
-                item.after(100, step)
-    item.after(100, step())
+                item.after(20, step)
+    item.after(200, step())
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors")
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone")
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 370, "paper")
