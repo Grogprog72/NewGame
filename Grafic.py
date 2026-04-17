@@ -3,12 +3,18 @@ from random import randint
 from PIL import ImageTk, Image as PILImage
 from main import bot_turn, move_result, possible_move
 
+BOT_DELAY = 700
+ATTACK_DELAY, ATTACK_DELAY_SHAG = 200, 20
+BURST_DELAY, BURST_DELAY_AFTER= 100, 500
+DELAY_HIDE = 2000
+
 def on_click(event):
     player_move = event.widget.name
     item = label_hide(root, objects, player_move)
     attack(item)
     bot_move = bot_chose_animation(bot_label=bot_label)
     attack(bot_label)
+    burst_animation()
     move_result(player_move, bot_move)
 
 root = tk.Tk()
@@ -18,10 +24,13 @@ root.title("Камень/Ножницы/Бумага")
 
 def create_img(img_path):
     img = PILImage.open(img_path)
-    scaled = img.resize((200, 200), PILImage.Resampling.LANCZOS)
+    if img_path == r"imageee/1burst.webp":
+        scaled = img.resize((600, 400), PILImage.Resampling.LANCZOS)
+    else:
+        scaled = img.resize((200, 200), PILImage.Resampling.LANCZOS)
     photo = ImageTk.PhotoImage(scaled)
     return photo
-def create_widget(root, img_path, x, y, name, clickable=True, default_img_path=None):
+def create_widget(root, img_path, x, y, name, clickable=True, default_img_path=None, invision=False):
     photo_obj = create_img(img_path)
 
     label = tk.Label(root, image=photo_obj)
@@ -33,12 +42,14 @@ def create_widget(root, img_path, x, y, name, clickable=True, default_img_path=N
     label.x = x
     label.y = y
     label.place(x=x, y=y)
+    if invision:
+        label.place_forget()
     if clickable:
         label.configure(cursor="hand2")
         label.bind("<Button-1>", on_click)
     return label
 
-def bot_chose_animation(bot_label, total_delay=700):
+def bot_chose_animation(bot_label):
     image_paths = (r"imageee/1scissors.webp", r"imageee/1scala.png", r"imageee/1magabum.png")
     images = []
     for path in image_paths:
@@ -57,13 +68,12 @@ def bot_chose_animation(bot_label, total_delay=700):
         bot_label.image = image
         current_step += 1
         if current_step <= bot_move_number:
-            step_delay = total_delay // bot_move_number
+            step_delay = BOT_DELAY // bot_move_number
             bot_label.after(step_delay, step)
-
     step()
     return bot_chose
 
-def label_hide(root, list_obj_labels, name_label_to_show, delay=2000):
+def label_hide(root, list_obj_labels, name_label_to_show):
     hodi = ['scissors', 'stone', 'paper']
     b = 0
     for i in range(3):
@@ -73,14 +83,17 @@ def label_hide(root, list_obj_labels, name_label_to_show, delay=2000):
             list_obj_labels[i].place_forget()
         else:
             b = i
-    root.after(delay, label_none_hide, list_obj_labels, root)
+    root.after(DELAY_HIDE, label_none_hide, list_obj_labels)
     return list_obj_labels[b]
-def label_none_hide(list_obj_labels, root):
+def label_none_hide(list_obj_labels):
     for item in list_obj_labels:
         if item.name == "?":
             item.configure(image=item.default_image)
             item.image = item.default_image
-        item.place(x=item.x, y=item.y)
+        if item.name == "burst":
+            item.place_forget()
+        else:
+            item.place(x=item.x, y=item.y)
 
 def attack(item):
     current_x = item.winfo_x()
@@ -89,30 +102,41 @@ def attack(item):
     step_x = (current_x - 300) / 21
     def step():
         nonlocal current_x, current_y
-        #step_y = (current_y - 200) / 7
-        #step_x = (current_x - 300) / 7
         if str(item) == '.!label3':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_x > 300 and current_y > 200:
-                item.after(20, step)
+                item.after(ATTACK_DELAY_SHAG, step)
         elif str(item) == '.!label2':
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_y > 200:
-                item.after(20, step)
+                item.after(ATTACK_DELAY_SHAG, step)
         elif str(item) == '.!label':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_x < 300 and current_y < 400:
-                item.after(20, step)
-    item.after(200, step())
+                item.after(ATTACK_DELAY_SHAG, step)
+        else:
+            current_y -= step_y
+            item.place(x=current_x, y=current_y)
+            if current_y < 200:
+                item.after(ATTACK_DELAY_SHAG, step)
+    item.after(ATTACK_DELAY, step())
+
+def burst_animation():
+    def burst_delay():
+        root.after(BURST_DELAY, burst_widget.place_forget())
+        burst_widget.place(x=100, y=100)
+    root.after(BURST_DELAY_AFTER, burst_delay)
+
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors")
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone")
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 370, "paper")
 bot_label = create_widget(root, r"imageee/1quest.webp", 300, 0, "?", False, default_img_path=r"imageee/1quest.webp")
-objects = [scissors_widget, stone_widget, paper_widget, bot_label]
+burst_widget = create_widget(root, r"imageee/1burst.webp", 0, 0, "burst", False, invision=True)
+objects = [scissors_widget, stone_widget, paper_widget, bot_label, burst_widget]
 
 root.mainloop()
