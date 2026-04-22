@@ -25,17 +25,21 @@ def move_result(player_move: str, bot_move: str) -> None:
 
     print(f"Your move: {enter}\n Bot move: {bot_move}")
     game_score['total_move'] += 1
+    winner = 'net'
     if (possible_move.index(enter) - 1 == possible_move.index(bot_move)) or (possible_move.index(enter) == 0 and possible_move.index(bot_move) == 2):
         game_score['bot_score'] += 1
         print('bot win')
+        winner = "bot"
     elif possible_move.index(enter) == possible_move.index(bot_move):
         print('nothing win')
+        winner = "net"
     elif player_move.upper() == "З":
         exit()
     else:
         game_score['player_score'] += 1
         print('player win')
-
+        winner = "player"
+    return winner
 
 def main_game() -> None:
     print('Если хотите завершить игру и увидеть счёт, введите З')
