@@ -6,18 +6,18 @@ from main import bot_turn, move_result, possible_move
 BOT_DELAY = 700
 ATTACK_DELAY, ATTACK_DELAY_SHAG = 200, 20
 BURST_DELAY, BURST_DELAY_AFTER= 500, 1000
-ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 100, 1000
+ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 40, 500
 DELAY_HIDE = 3000
 
 def on_click(event):
     player_move = event.widget.name
     item = label_hide(root, objects, player_move)
-    attack(item)
     bot_move = bot_chose_animation(bot_label=bot_label)
     burst_animation()
     winner = move_result(player_move, bot_move)
-    attack_bot(bot_label)
-    after_win(bot_label, player_move, winner)
+    attack(item)
+    attack_up(bot_label, target_y=200, win=True)
+    after_win(bot_label, item, winner)
 
 root = tk.Tk()
 root.geometry("800x600")
@@ -26,7 +26,7 @@ root.title("Камень/Ножницы/Бумага")
 def create_img(img_path):
     img = PILImage.open(img_path)
     if img_path == r"imageee/1burst.webp":
-        scaled = img.resize((600, 400), PILImage.Resampling.LANCZOS)
+        scaled = img.resize((600, 300), PILImage.Resampling.LANCZOS)
     else:
         scaled = img.resize((200, 200), PILImage.Resampling.LANCZOS)
     photo = ImageTk.PhotoImage(scaled)
@@ -96,7 +96,7 @@ def label_none_hide(list_obj_labels):
         else:
             item.place(x=item.x, y=item.y)
 
-def attack(item, win=None):
+def attack(item):
     current_x = item.winfo_x()
     current_y = item.winfo_y()
     step_y = (current_y - 200) / 21
@@ -120,7 +120,6 @@ def attack(item, win=None):
             item.place(x=current_x, y=current_y)
             if current_x < 300 and current_y < 400:
                 item.after(ATTACK_DELAY_SHAG, step)
-
     item.after(ATTACK_DELAY, step)
 
 def burst_animation():
@@ -130,25 +129,43 @@ def burst_animation():
     root.after(BURST_DELAY_AFTER, burst_delay)
 
 def after_win(bot_label, player_move, win):
-    if win == 'net':
-        pass
-    elif win == 'bot':
-        attack(bot_label, win)
-    else:
-        attack(player_move, win)
+    def attack_delay():
+        if win == 'net':
+            pass
+        elif win == 'bot':
+            attack_up(bot_label)
+        else:
+            attack_from_niz(player_move)
+    root.after(ATTACK_DELAY_BOT, attack_delay)
 
-def attack_bot(bot_label, target_y = 600):
-    current_y = bot_label.winfo_y()
-    step_y = (target_y - current_y) / 21
-    current_x = bot_label.winfo_x()
+def attack_up(item, target_y = 400, win=False):
+    current_y = item.winfo_y()
+    current_x = item.winfo_x()
     step_delay = ATTACK_DELAY_SHAG_BOT // 7
+    if win == False:
+        step_y = (target_y - current_y) / 24
+    else:
+        step_y = (target_y - current_y) / 11
     def step():
-        nonlocal current_y, current_x
+        nonlocal current_y, current_x, step_y
         current_y += step_y
         bot_label.place(x=current_x, y=current_y)
         if current_y < target_y:
             bot_label.after(step_delay, step)
-    bot_label.after(ATTACK_DELAY_BOT, step)
+    step()
+
+def attack_from_niz(item, target_y = 0):
+    current_y = item.winfo_y()
+    step_y = (current_y - target_y) / 24
+    current_x = item.winfo_x()
+    step_delay = ATTACK_DELAY_SHAG_BOT // 7
+    def step():
+        nonlocal current_y, current_x
+        current_y -= step_y
+        item.place(x=current_x, y=current_y)
+        if current_y > target_y:
+            item.after(step_delay, step)
+    step()
 
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors")
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone")
