@@ -6,7 +6,8 @@ from main import bot_turn, move_result, possible_move
 BOT_DELAY = 700
 ATTACK_DELAY, ATTACK_DELAY_SHAG = 200, 20
 BURST_DELAY, BURST_DELAY_AFTER= 500, 1000
-ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 40, 500
+ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 100, 500
+ITOG_START_DELAY = 300
 DELAY_HIDE = 3000
 
 def on_click(event):
@@ -16,7 +17,7 @@ def on_click(event):
     burst_animation()
     winner = move_result(player_move, bot_move)
     attack(item)
-    attack_up(bot_label, target_y=200, win=True)
+    attack_up(bot_label, target_y=200, win=True, delay_True=250)
     after_win(bot_label, item, winner)
 
 root = tk.Tk()
@@ -27,6 +28,7 @@ def create_img(img_path):
     img = PILImage.open(img_path)
     if img_path == r"imageee/1burst.webp":
         scaled = img.resize((600, 300), PILImage.Resampling.LANCZOS)
+        scaled = scaled.crop((0, 50, 600, 300))
     else:
         scaled = img.resize((200, 200), PILImage.Resampling.LANCZOS)
     photo = ImageTk.PhotoImage(scaled)
@@ -125,7 +127,7 @@ def attack(item):
 def burst_animation():
     def burst_delay():
         root.after(BURST_DELAY, burst_widget.place_forget())
-        burst_widget.place(x=100, y=100)
+        burst_widget.place(x=100, y=150)
     root.after(BURST_DELAY_AFTER, burst_delay)
 
 def after_win(bot_label, player_move, win):
@@ -136,9 +138,16 @@ def after_win(bot_label, player_move, win):
             attack_up(bot_label)
         else:
             attack_from_niz(player_move)
+    root.after(1000, health, win)
     root.after(ATTACK_DELAY_BOT, attack_delay)
-
-def attack_up(item, target_y = 400, win=False):
+    print(player_health.winfo_width(), bot_health.winfo_width())
+    if player_health.winfo_width() <= 0:
+        print(1)
+        itogi("Bot win!")
+    elif bot_health.winfo_width() <= 0:
+        print(2)
+        itogi("Player win!")
+def attack_up(item, target_y = 400, win=False, delay_True=0):
     current_y = item.winfo_y()
     current_x = item.winfo_x()
     step_delay = ATTACK_DELAY_SHAG_BOT // 7
@@ -152,12 +161,12 @@ def attack_up(item, target_y = 400, win=False):
         bot_label.place(x=current_x, y=current_y)
         if current_y < target_y:
             bot_label.after(step_delay, step)
-    step()
+    root.after(delay_True, step)
 
 def attack_from_niz(item, target_y = 0):
-    current_y = item.winfo_y()
+    current_y = 200
     step_y = (current_y - target_y) / 24
-    current_x = item.winfo_x()
+    current_x = 300
     step_delay = ATTACK_DELAY_SHAG_BOT // 7
     def step():
         nonlocal current_y, current_x
@@ -165,13 +174,39 @@ def attack_from_niz(item, target_y = 0):
         item.place(x=current_x, y=current_y)
         if current_y > target_y:
             item.after(step_delay, step)
-    step()
+    root.after(ATTACK_DELAY_BOT + 290, step)
 
+def create_healthbar(root, x, y, width, height, out_color='red', inner_color='green'):
+    outer = tk.Frame(root, bg=out_color, width=width, height=height)
+    outer.place(x=x, y=y)
+    outer.update_idletasks()
+    inner = tk.Frame(root, bg=inner_color, width=width, height=height)
+    inner.place(x=x, y=y)
+    inner.update_idletasks()
+    return inner
+
+def health(win):
+    if win == "player":
+        new_width = bot_health.winfo_width() - 100
+        bot_health.config(width=new_width)
+    elif win == "bot":
+        new_width = player_health.winfo_width() - 100
+        player_health.config(width=new_width)
+    else:
+        pass
+
+def itogi(text):
+    def wrapper():
+        label = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg="Blue")
+        label.place(x=200, y=300, width=300, height=200)
+    root.after(ITOG_START_DELAY, wrapper)
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors")
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone")
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 370, "paper")
 bot_label = create_widget(root, r"imageee/1quest.webp", 300, 0, "?", False, default_img_path=r"imageee/1quest.webp")
 burst_widget = create_widget(root, r"imageee/1burst.webp", 0, 0, "burst", False, invision=True)
+bot_health = create_healthbar(root, 0, 0, 200, 40, out_color='red', inner_color='green')
+player_health = create_healthbar(root, 600, 560, 200, 40, out_color='red', inner_color='green')
 objects = [scissors_widget, stone_widget, paper_widget, bot_label, burst_widget]
 
 root.mainloop()
