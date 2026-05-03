@@ -5,20 +5,32 @@ from main import bot_turn, move_result, possible_move
 
 BOT_DELAY = 700
 ATTACK_DELAY, ATTACK_DELAY_SHAG = 200, 20
-BURST_DELAY, BURST_DELAY_AFTER= 500, 1000
+BURST_DELAY, BURST_DELAY_AFTER= 50, 1000
 ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 100, 500
-ITOG_START_DELAY = 300
+ITOG_START_DELAY = 1000
 DELAY_HIDE = 3000
 
 def on_click(event):
     player_move = event.widget.name
-    item = label_hide(root, objects, player_move)
-    bot_move = bot_chose_animation(bot_label=bot_label)
-    burst_animation()
-    winner = move_result(player_move, bot_move)
-    attack(item)
-    attack_up(bot_label, target_y=200, win=True, delay_True=250)
-    after_win(bot_label, item, winner)
+    if event.widget.after_clickable == True:
+        pass
+        #if player_move == "new_game":
+        #    bot_health.width = 200
+        #    player_health.width = 200
+        #    new_game_widget.place_forget()
+        #    scissors_widget.after_clickable = False
+        #    stone_widget.after_clickable = False
+        #    paper_widget.after_clickable = False
+    else:
+        item = label_hide(root, objects, player_move)
+        bot_move = bot_chose_animation(bot_label=bot_label)
+        burst_animation()
+        winner = move_result(player_move, bot_move)
+        attack(item)
+        attack_up(bot_label, target_y=200, win=True, delay_True=250)
+        after_win(bot_label, item, winner)
+
+
 
 root = tk.Tk()
 root.geometry("800x600")
@@ -33,15 +45,15 @@ def create_img(img_path):
         scaled = img.resize((200, 200), PILImage.Resampling.LANCZOS)
     photo = ImageTk.PhotoImage(scaled)
     return photo
-def create_widget(root, img_path, x, y, name, clickable=True, default_img_path=None, invision=False):
+def create_widget(root, img_path, x, y, name, clickable=True, default_img_path=None, invision=False, after_clickable=False):
     photo_obj = create_img(img_path)
-
     label = tk.Label(root, image=photo_obj)
     if default_img_path is not None:
         default_img_obj = create_img(default_img_path)
         label.default_image = default_img_obj
     label.image = photo_obj
     label.name = name
+    label.after_clickable = after_clickable
     label.x = x
     label.y = y
     label.place(x=x, y=y)
@@ -140,13 +152,18 @@ def after_win(bot_label, player_move, win):
             attack_from_niz(player_move)
     root.after(1000, health, win)
     root.after(ATTACK_DELAY_BOT, attack_delay)
-    print(player_health.winfo_width(), bot_health.winfo_width())
-    if player_health.winfo_width() <= 0:
-        print(1)
-        itogi("Bot win!")
-    elif bot_health.winfo_width() <= 0:
-        print(2)
-        itogi("Player win!")
+    if player_health.winfo_width() <= 50 and win == 'bot':
+        slova("Bot win!", x=575, y=225, width=150, height=100)
+        scissors_widget.after_clickable = True
+        stone_widget.after_clickable = True
+        paper_widget.after_clickable = True
+        #new_game_widget.place(x=500, y=225)
+    elif bot_health.winfo_width() <= 50 and win == 'player':
+        scissors_widget.after_clickable = True
+        stone_widget.after_clickable = True
+        paper_widget.after_clickable = True
+        slova("Player win!", x=575, y=225, width=150, height=100)
+        #new_game_widget.place(x=500, y=225)
 def attack_up(item, target_y = 400, win=False, delay_True=0):
     current_y = item.winfo_y()
     current_x = item.winfo_x()
@@ -187,24 +204,25 @@ def create_healthbar(root, x, y, width, height, out_color='red', inner_color='gr
 
 def health(win):
     if win == "player":
-        new_width = bot_health.winfo_width() - 100
+        new_width = bot_health.winfo_width() - 50
         bot_health.config(width=new_width)
     elif win == "bot":
-        new_width = player_health.winfo_width() - 100
+        new_width = player_health.winfo_width() - 50
         player_health.config(width=new_width)
     else:
         pass
 
-def itogi(text):
+def slova(text, fg="Blue", x=0, y=0, width=0, height=0):
     def wrapper():
-        label = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg="Blue")
-        label.place(x=200, y=300, width=300, height=200)
+        label = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg=fg)
+        label.place(x=x, y=y, width=width, height=height)
     root.after(ITOG_START_DELAY, wrapper)
-scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors")
-stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone")
-paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 370, "paper")
+scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors", after_clickable=False)
+stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone", after_clickable=False)
+paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 350, "paper",  after_clickable=False)
 bot_label = create_widget(root, r"imageee/1quest.webp", 300, 0, "?", False, default_img_path=r"imageee/1quest.webp")
 burst_widget = create_widget(root, r"imageee/1burst.webp", 0, 0, "burst", False, invision=True)
+#new_game_widget = create_widget(root, r"imageee/1burst.webp", 500, 225, "new_game", True, invision=True)
 bot_health = create_healthbar(root, 0, 0, 200, 40, out_color='red', inner_color='green')
 player_health = create_healthbar(root, 600, 560, 200, 40, out_color='red', inner_color='green')
 objects = [scissors_widget, stone_widget, paper_widget, bot_label, burst_widget]

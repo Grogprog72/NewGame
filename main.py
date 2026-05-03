@@ -22,7 +22,6 @@ def move_result(player_move: str, bot_move: str) -> None:
         enter = possible_move[1]
     elif player_move == "paper":
         enter = possible_move[2]
-
     print(f"Your move: {enter}\n Bot move: {bot_move}")
     game_score['total_move'] += 1
     winner = 'net'
