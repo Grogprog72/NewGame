@@ -153,7 +153,7 @@ def after_win(bot_label, player_move, win):
     root.after(1000, health, win)
     root.after(ATTACK_DELAY_BOT, attack_delay)
     if player_health.winfo_width() <= 50 and win == 'bot':
-        slova("Bot win!", x=575, y=225, width=150, height=100)
+        slova("Bot win!", x=575, y=225, fg="Red", width=150, height=100)
         scissors_widget.after_clickable = True
         stone_widget.after_clickable = True
         paper_widget.after_clickable = True
@@ -216,13 +216,17 @@ def slova(text, fg="Blue", x=0, y=0, width=0, height=0):
     def wrapper():
         label = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg=fg)
         label.place(x=x, y=y, width=width, height=height)
+    def refresh():
+        label = new_game_widget
+        label.place(x=550, y=25)
     root.after(ITOG_START_DELAY, wrapper)
+    root.after(ITOG_START_DELAY + 1000, refresh)
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors", after_clickable=False)
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone", after_clickable=False)
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 350, "paper",  after_clickable=False)
 bot_label = create_widget(root, r"imageee/1quest.webp", 300, 0, "?", False, default_img_path=r"imageee/1quest.webp")
 burst_widget = create_widget(root, r"imageee/1burst.webp", 0, 0, "burst", False, invision=True)
-#new_game_widget = create_widget(root, r"imageee/1burst.webp", 500, 225, "new_game", True, invision=True)
+new_game_widget = create_widget(root, r"imageee/refresh.png", 500, 225, "new_game", True, invision=True)
 bot_health = create_healthbar(root, 0, 0, 200, 40, out_color='red', inner_color='green')
 player_health = create_healthbar(root, 600, 560, 200, 40, out_color='red', inner_color='green')
 objects = [scissors_widget, stone_widget, paper_widget, bot_label, burst_widget]

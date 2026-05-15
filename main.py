@@ -22,10 +22,16 @@ def move_result(player_move: str, bot_move: str) -> None:
         enter = possible_move[1]
     elif player_move == "paper":
         enter = possible_move[2]
-    print(f"Your move: {enter}\n Bot move: {bot_move}")
-    game_score['total_move'] += 1
+    else:
+        enter = "REFRESH!"
     winner = 'net'
-    if (possible_move.index(enter) - 1 == possible_move.index(bot_move)) or (possible_move.index(enter) == 0 and possible_move.index(bot_move) == 2):
+    game_score['total_move'] += 1
+    print(f"Your move: {enter}\n Bot move: {bot_move}")
+    print(enter, "hi")
+    if enter == "REFRESH!":
+        game_score['total_move'] -= 1
+        winner = 'REFRESH!'
+    elif (possible_move.index(enter) - 1 == possible_move.index(bot_move)) or (possible_move.index(enter) == 0 and possible_move.index(bot_move) == 2):
         game_score['bot_score'] += 1
         print('bot win')
         winner = "bot"
