@@ -14,21 +14,24 @@ def on_click(event):
     player_move = event.widget.name
     if event.widget.after_clickable == True:
         pass
-        #if player_move == "new_game":
-        #    bot_health.width = 200
-        #    player_health.width = 200
-        #    new_game_widget.place_forget()
-        #    scissors_widget.after_clickable = False
-        #    stone_widget.after_clickable = False
-        #    paper_widget.after_clickable = False
     else:
-        item = label_hide(root, objects, player_move)
-        bot_move = bot_chose_animation(bot_label=bot_label)
-        burst_animation()
-        winner = move_result(player_move, bot_move)
-        attack(item)
-        attack_up(bot_label, target_y=200, win=True, delay_True=250)
-        after_win(bot_label, item, winner)
+        if player_move == "new_game":
+            player_health.config(width=200)
+            bot_health.config(width=200)
+            new_game_widget.place_forget()
+            scissors_widget.after_clickable = False
+            stone_widget.after_clickable = False
+            paper_widget.after_clickable = False
+            slova("Player win!", x=575, y=225, width=150, height=100, de=False)
+        else:
+            item = label_hide(root, objects, player_move)
+            bot_move = bot_chose_animation(bot_label=bot_label)
+            burst_animation()
+            winner = move_result(player_move, bot_move)
+            attack(item)
+            attack_up(bot_label, target_y=200, win=True, delay_True=250)
+            after_win(bot_label, item, winner)
+
 
 
 
@@ -157,13 +160,12 @@ def after_win(bot_label, player_move, win):
         scissors_widget.after_clickable = True
         stone_widget.after_clickable = True
         paper_widget.after_clickable = True
-        #new_game_widget.place(x=500, y=225)
     elif bot_health.winfo_width() <= 50 and win == 'player':
         scissors_widget.after_clickable = True
         stone_widget.after_clickable = True
         paper_widget.after_clickable = True
         slova("Player win!", x=575, y=225, width=150, height=100)
-        #new_game_widget.place(x=500, y=225)
+
 def attack_up(item, target_y = 400, win=False, delay_True=0):
     current_y = item.winfo_y()
     current_x = item.winfo_x()
@@ -212,15 +214,22 @@ def health(win):
     else:
         pass
 
-def slova(text, fg="Blue", x=0, y=0, width=0, height=0):
-    def wrapper():
-        label = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg=fg)
-        label.place(x=x, y=y, width=width, height=height)
+def slova(text, fg="Blue", x=0, y=0, width=0, height=0, de=True):
+    texttt = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg=fg)
+    hm = 0
+    def wrapper(de=de):
+        nonlocal hm
+        if de == True:
+            hm = texttt
+            texttt.place(x=x, y=y, width=width, height=height)
+        else:
+            hm.place_forget()
     def refresh():
         label = new_game_widget
         label.place(x=550, y=25)
     root.after(ITOG_START_DELAY, wrapper)
-    root.after(ITOG_START_DELAY + 1000, refresh)
+    if de == True:
+        root.after(ITOG_START_DELAY + 1900, refresh)
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors", after_clickable=False)
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone", after_clickable=False)
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 350, "paper",  after_clickable=False)
