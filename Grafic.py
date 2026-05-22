@@ -1,7 +1,7 @@
 import tkinter as tk
 from random import randint
 from PIL import ImageTk, Image as PILImage
-from main import bot_turn, move_result, possible_move
+from main import bot_turn, move_result, possible_move, game_score
 
 BOT_DELAY = 700
 ATTACK_DELAY, ATTACK_DELAY_SHAG = 200, 20
@@ -9,6 +9,10 @@ BURST_DELAY, BURST_DELAY_AFTER= 50, 1000
 ATTACK_DELAY_BOT, ATTACK_DELAY_SHAG_BOT = 100, 500
 ITOG_START_DELAY = 1000
 DELAY_HIDE = 3000
+hm = None
+Play_score = 0
+Bote_score = 0
+Tota_score = 0
 
 def on_click(event):
     player_move = event.widget.name
@@ -146,6 +150,7 @@ def burst_animation():
     root.after(BURST_DELAY_AFTER, burst_delay)
 
 def after_win(bot_label, player_move, win):
+    global Tota_score, Play_score, Bote_score
     def attack_delay():
         if win == 'net':
             pass
@@ -156,7 +161,7 @@ def after_win(bot_label, player_move, win):
     root.after(1000, health, win)
     root.after(ATTACK_DELAY_BOT, attack_delay)
     if player_health.winfo_width() <= 50 and win == 'bot':
-        slova("Bot win!", x=575, y=225, fg="Red", width=150, height=100)
+        slova("Bot win!", x=575, y=225, fg="Red", width=150, height=100, win=win)
         scissors_widget.after_clickable = True
         stone_widget.after_clickable = True
         paper_widget.after_clickable = True
@@ -164,7 +169,7 @@ def after_win(bot_label, player_move, win):
         scissors_widget.after_clickable = True
         stone_widget.after_clickable = True
         paper_widget.after_clickable = True
-        slova("Player win!", x=575, y=225, width=150, height=100)
+        slova("Player win!", x=575, y=225, width=150, height=100, win=win)
 
 def attack_up(item, target_y = 400, win=False, delay_True=0):
     current_y = item.winfo_y()
@@ -214,22 +219,40 @@ def health(win):
     else:
         pass
 
-def slova(text, fg="Blue", x=0, y=0, width=0, height=0, de=True):
+def slova(text, fg="Blue", x=0, y=0, width=0, height=0, de=True, win=None):
     texttt = tk.Label(root, text=text, font=("Arial", 16, "bold"), fg=fg)
-    hm = 0
+    global hm
+    skip = 0
+    if de == False:
+        skip = 1000
     def wrapper(de=de):
-        nonlocal hm
+        global hm, Tota_score, Bote_score, Play_score
         if de == True:
             hm = texttt
+            Tota_score += 1
+            scor_t = tk.Label(root, text=f"Total score: {Tota_score}", font=("Arial", 16, "bold"), fg="Black")
             texttt.place(x=x, y=y, width=width, height=height)
+            scor_t.place(x=0, y=100, width=150, height=100)
+            if win == "player":
+                Play_score += 1
+                scor_p = tk.Label(root, text=f"Player score: {Play_score}", font=("Arial", 16, "bold"), fg="Blue")
+                scor_p.place(x=0, y=200, width=150, height=100)
+            else:
+                Bote_score += 1
+                scor_b = tk.Label(root, text=f"Bot score: {Bote_score}", font=("Arial", 16, "bold"), fg="Red")
+                scor_b.place(x=0, y=300, width=150, height=100)
         else:
-            hm.place_forget()
+            hm.destroy()
     def refresh():
         label = new_game_widget
         label.place(x=550, y=25)
-    root.after(ITOG_START_DELAY, wrapper)
+    root.after(ITOG_START_DELAY - skip, wrapper)
     if de == True:
         root.after(ITOG_START_DELAY + 1900, refresh)
+#name_health_bot = tk.Label(root, text="<--- Bot health", font=("Arial", 16, "bold"), fg="Black")
+#name_health_bot.place(x=350, y=50, width=150, height=100)
+#name_health_player = tk.Label(root, text="Player health --->", font=("Arial", 16, "bold"), fg="Black")
+#name_health_player.place(x=300, y=500, width=150, height=100)
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors", after_clickable=False)
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone", after_clickable=False)
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 350, "paper",  after_clickable=False)
