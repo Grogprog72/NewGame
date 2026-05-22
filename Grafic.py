@@ -124,18 +124,18 @@ def attack(item):
     step_x = (current_x - 300) / 21
     def step():
         nonlocal current_x, current_y
-        if str(item) == '.!label3':
+        if item.name == 'paper':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_x > 300 and current_y > 200:
                 item.after(ATTACK_DELAY_SHAG, step)
-        elif str(item) == '.!label2':
+        elif item.name == 'stone':
             current_y -= step_y
             item.place(x=current_x, y=current_y)
             if current_y > 200:
                 item.after(ATTACK_DELAY_SHAG, step)
-        elif str(item) == '.!label':
+        elif item.name == 'scissors':
             current_x -= step_x
             current_y -= step_y
             item.place(x=current_x, y=current_y)
@@ -249,10 +249,10 @@ def slova(text, fg="Blue", x=0, y=0, width=0, height=0, de=True, win=None):
     root.after(ITOG_START_DELAY - skip, wrapper)
     if de == True:
         root.after(ITOG_START_DELAY + 1900, refresh)
-#name_health_bot = tk.Label(root, text="<--- Bot health", font=("Arial", 16, "bold"), fg="Black")
-#name_health_bot.place(x=350, y=50, width=150, height=100)
-#name_health_player = tk.Label(root, text="Player health --->", font=("Arial", 16, "bold"), fg="Black")
-#name_health_player.place(x=300, y=500, width=150, height=100)
+name_health_bot = tk.Label(root, text="Bot health", font=("Arial", 16, "bold"), fg="Black")
+name_health_bot.place(x=0, y=25, width=150, height=50)
+name_health_player = tk.Label(root, text="Your health", font=("Arial", 16, "bold"), fg="Black")
+name_health_player.place(x=470, y=575, width=150, height=25)
 scissors_widget = create_widget(root, r"imageee/1scissors.webp", 50, 370, "scissors", after_clickable=False)
 stone_widget = create_widget(root, r"imageee/1scala.png", 300, 370, "stone", after_clickable=False)
 paper_widget = create_widget(root, r"imageee/1magabum.png", 550, 350, "paper",  after_clickable=False)
