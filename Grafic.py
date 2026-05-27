@@ -1,4 +1,7 @@
 import tkinter as tk
+import pygame
+import os
+import sys
 from random import randint
 from PIL import ImageTk, Image as PILImage
 from main import bot_turn, move_result, possible_move, game_score
@@ -13,6 +16,13 @@ hm = None
 Play_score = 0
 Bote_score = 0
 Tota_score = 0
+
+def get_resource_path(relavite_path):
+    if getattr(sys, 'frozen', False):
+        base_path = os.path.dirname(sys.argv[0])
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relavite_path)
 
 def on_click(event):
     player_move = event.widget.name
@@ -30,19 +40,32 @@ def on_click(event):
         else:
             item = label_hide(root, objects, player_move)
             bot_move = bot_chose_animation(bot_label=bot_label)
+            play_sound('intriga', 'ch3')
             burst_animation()
             winner = move_result(player_move, bot_move)
             attack(item)
             attack_up(bot_label, target_y=200, win=True, delay_True=250)
             after_win(bot_label, item, winner)
 
-
-
+def play_sound(sound_name, sound_channel):
+    sound = soundse[sound_name]
+    channels[sound_channel].play(pygame.mixer.Sound(sound))
 
 root = tk.Tk()
 root.geometry("800x600")
 root.title("Камень/Ножницы/Бумага")
 
+pygame.mixer.init()
+pygame.mixer.set_num_channels(8)
+
+soundse = {"boom": get_resource_path('sounds/sound-effects-library-explosion-short-explosion-with-glass-debris-crash-explosions-bombs.mp3'),
+          "bot_win": get_resource_path('sounds/66dc9666f919d55.mp3'),
+          "player_win": get_resource_path('sounds/win31.mp3'),
+          "intriga": get_resource_path('sounds/intriga.mp3')}
+
+channels = {"ch1": pygame.mixer.Channel(0),
+          "ch2": pygame.mixer.Channel(1),
+            "ch3": pygame.mixer.Channel(2)}
 def create_img(img_path):
     img = PILImage.open(img_path)
     if img_path == r"imageee/1burst.webp":
@@ -147,6 +170,7 @@ def burst_animation():
     def burst_delay():
         root.after(BURST_DELAY, burst_widget.place_forget())
         burst_widget.place(x=100, y=150)
+        play_sound('boom', 'ch1')
     root.after(BURST_DELAY_AFTER, burst_delay)
 
 def after_win(bot_label, player_move, win):
@@ -234,10 +258,12 @@ def slova(text, fg="Blue", x=0, y=0, width=0, height=0, de=True, win=None):
             texttt.place(x=x, y=y, width=width, height=height)
             scor_t.place(x=0, y=100, width=150, height=100)
             if win == "player":
+                play_sound('player_win', 'ch2')
                 Play_score += 1
                 scor_p = tk.Label(root, text=f"Player score: {Play_score}", font=("Arial", 16, "bold"), fg="Blue")
                 scor_p.place(x=0, y=200, width=150, height=100)
             else:
+                play_sound('bot_win', 'ch2')
                 Bote_score += 1
                 scor_b = tk.Label(root, text=f"Bot score: {Bote_score}", font=("Arial", 16, "bold"), fg="Red")
                 scor_b.place(x=0, y=300, width=150, height=100)
